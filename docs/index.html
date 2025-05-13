@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Preço e Custos</title>
   <style>
     :root {
@@ -24,8 +25,8 @@
       background: var(--secondary-color);
       color: var(--text-color);
       padding: 20px;
-      max-width: 900px;
       margin: auto;
+      max-width: 900px;
     }
 
     h1 {
@@ -126,6 +127,21 @@
       margin-top: 15px;
       font-size: 1.2rem;
       text-align: right;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .flex-container {
+        flex-direction: column;
+      }
+
+      body {
+        padding: 10px;
+      }
+
+      .box {
+        padding: 15px;
+      }
     }
   </style>
 </head>
