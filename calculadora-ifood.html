@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Preço e Custos</title>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #ecf0f1;
+      --accent-color: #e67e22;
+      --text-color: #34495e;
+      --bg-box: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--secondary-color);
+      color: var(--text-color);
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      background: var(--bg-box);
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1;
+      min-width: 300px;
+      box-shadow: 0 4px 8px var(--shadow);
+      transition: transform 0.2s ease;
+    }
+
+    .box:hover {
+      transform: translateY(-4px);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 8px;
+    }
+
+    label {
+      margin-top: 15px;
+      font-size: 1rem;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent-color);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 1rem;
+      background: var(--accent-color);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #d35400;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 15px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    ul li {
+      background: var(--secondary-color);
+      margin: 6px 0;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    .total {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Calculadora de Preço e Custos</h1>
+  <div class="flex-container">
+    <!-- Calculadoras iFood -->
+    <div class="box">
+      <h2>1) Preço de Venda (iFood)</h2>
+      <label>Valor desejado (R$):</label>
+      <input type="number" id="valorLiquido" placeholder="Ex: 10,00" step="0.01">
+      <label>Taxa iFood (%):</label>
+      <input type="number" id="taxa" placeholder="Ex: 27" step="0.1">
+      <button onclick="calcularVenda()">Calcular</button>
+      <div class="result" id="resultadoVenda"></div>
+    </div>
+    <div class="box">
+      <h2>2) Valor Recebido (iFood)</h2>
+      <label>Preço de venda (R$):</label>
+      <input type="number" id="valorVenda" placeholder="Ex: 13,70" step="0.01">
+      <label>Taxa iFood (%):</label>
+      <input type="number" id="taxa2" placeholder="Ex: 27" step="0.1">
+      <button onclick="calcularRecebido()">Calcular</button>
+      <div class="result" id="resultadoRecebido"></div>
+    </div>
+  </div>
+
+  <div class="flex-container" style="margin-top: 40px;">
+    <div class="box">
+      <h2>3) Custo por Peso</h2>
+      <label>Custo por kg (R$):</label>
+      <input type="number" id="custoKg" placeholder="Ex: 50,00" step="0.01">
+      <label>Peso (g):</label>
+      <input type="number" id="pesoGramas" placeholder="Ex: 200" step="1">
+      <button onclick="calcularCustoPeso()">Calcular</button>
+      <div class="result" id="resultadoPeso"></div>
+    </div>
+    <div class="box">
+      <h2>4) Montar Custo de Pastéis</h2>
+      <label>Nome do insumo:</label>
+      <input type="text" id="itemNome" placeholder="Ex: Queijo">
+      <label>Custo (R$):</label>
+      <input type="number" id="itemCusto" placeholder="Ex: 2,50" step="0.01">
+      <button onclick="adicionarItem()">Adicionar</button>
+      <ul id="listaItens"></ul>
+      <div class="total">Total: R$ <span id="totalItens">0,00</span></div>
+    </div>
+  </div>
+
+  <script>
+    function calcularVenda() {
+      const valorLiquido = parseFloat(document.getElementById('valorLiquido').value);
+      const taxa = parseFloat(document.getElementById('taxa').value) / 100;
+      const out = document.getElementById('resultadoVenda');
+      if (isNaN(valorLiquido) || isNaN(taxa) || taxa >= 1) {
+        out.innerText = 'Preencha corretamente.';
+        return;
+      }
+      const precoVenda = valorLiquido / (1 - taxa);
+      out.innerText = `Cobrar: R$ ${precoVenda.toFixed(2).replace('.', ',')}`;
+    }
+
+    function calcularRecebido() {
+      const valorVenda = parseFloat(document.getElementById('valorVenda').value);
+      const taxa = parseFloat(document.getElementById('taxa2').value) / 100;
+      const out = document.getElementById('resultadoRecebido');
+      if (isNaN(valorVenda) || isNaN(taxa) || taxa >= 1) {
+        out.innerText = 'Preencha corretamente.';
+        return;
+      }
+      const valorRecebido = valorVenda * (1 - taxa);
+      out.innerText = `Receberá: R$ ${valorRecebido.toFixed(2).replace('.', ',')}`;
+    }
+
+    function calcularCustoPeso() {
+      const custoKg = parseFloat(document.getElementById('custoKg').value);
+      const peso = parseFloat(document.getElementById('pesoGramas').value);
+      const out = document.getElementById('resultadoPeso');
+      if (isNaN(custoKg) || isNaN(peso)) {
+        out.innerText = 'Preencha corretamente.';
+        return;
+      }
+      const custo = (custoKg / 1000) * peso;
+      out.innerText = `Custo: R$ ${custo.toFixed(2).replace('.', ',')}`;
+    }
+
+    let total = 0;
+    function adicionarItem() {
+      const nome = document.getElementById('itemNome').value;
+      const custo = parseFloat(document.getElementById('itemCusto').value);
+      if (!nome || isNaN(custo)) return;
+      const lista = document.getElementById('listaItens');
+      const li = document.createElement('li');
+      li.innerText = `${nome}: R$ ${custo.toFixed(2).replace('.', ',')}`;
+      lista.appendChild(li);
+      total += custo;
+      document.getElementById('totalItens').innerText = total.toFixed(2).replace('.', ',');
+      document.getElementById('itemNome').value = '';
+      document.getElementById('itemCusto').value = '';
+    }
+  </script>
+</body>
+
+</html>
